@@ -8,6 +8,7 @@ public class InformationPacket extends DataPacket {
     public static byte NETWORK_ID = ProtocolInfo.INFORMATION_PACKET;
 
     public String message;
+    public long serverId;
 
     @Override
     public byte pid() {
@@ -17,10 +18,12 @@ public class InformationPacket extends DataPacket {
     @Override
     public void decode() {
         this.message = this.getString();
+        this.serverId = this.getLong();
     }
 
     @Override
     public void encode() {
         this.putString(message);
+        this.putLong(serverId);
     }
 }

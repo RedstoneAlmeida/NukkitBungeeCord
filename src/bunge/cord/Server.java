@@ -19,8 +19,14 @@ public class Server {
     private Network network;
     public int tick = 20;
 
-    public Server(){
+    private String[] args;
+
+    public int port;
+    public String password;
+
+    public Server(String[] args){
         this.network = new Network(this);
+        this.args = args;
     }
 
     public void start(){
@@ -28,8 +34,16 @@ public class Server {
             Thread thread = Thread.currentThread();
             thread.setName("Server Thread");
             tick();
+            if(args.length >= 2){
+                port = Integer.parseInt(args[0]);
+                password = args[1];
+            } else {
+                port = 1111;
+                password = "testpass";
+            }
             ServerSocket serv = new ServerSocket(1111);
             System.out.println("Iniciando o Servidor...");
+            System.out.println(String.format("Port: %s Pass: %s", port, password));
             while (true){
                 Socket clie = serv.accept();
                 Client client = new Client(this, clie);

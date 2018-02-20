@@ -98,7 +98,7 @@ public class Client extends Thread {
                 this.serverId = connectionPacket.serverId;
                 int slots = connectionPacket.slots;
 
-                if(!password.equalsIgnoreCase("testpass")){
+                if(!password.equalsIgnoreCase(server.password)){
                     DisconnectPacket pk = new DisconnectPacket();
                     pk.serverId = this.serverId;
                     this.dataPacket(pk);

@@ -5,7 +5,7 @@ import bunge.cord.Server;
 public class BungeePE {
 
     public static void main(String[] args){
-        Server server = new Server();
+        Server server = new Server(args);
         server.start();
     }
 

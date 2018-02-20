@@ -1,0 +1,1 @@
+java -jar NukkitCord.jar 25565 passwordtest

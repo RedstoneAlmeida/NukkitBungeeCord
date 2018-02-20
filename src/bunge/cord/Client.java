@@ -2,6 +2,7 @@ package bunge.cord;
 
 import bunge.cord.Server;
 import bunge.cord.network.protocol.*;
+import bunge.cord.utils.ClientInfo;
 import bunge.cord.utils.StorageClientInformation;
 
 import java.io.DataInputStream;
@@ -9,10 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class Client extends Thread {
 
@@ -113,7 +111,6 @@ public class Client extends Thread {
                 System.out.println(String.format("Nome: %s, Slots: %s", serverName, slots));
                 break;
             case ProtocolInfo.HANDLER_PACKET:
-                System.out.println("HandlePacket - " + this.serverId);
                 break;
             case ProtocolInfo.DISCONNECTION_PACKET:
                 DisconnectPacket diss = (DisconnectPacket) packet;
@@ -130,6 +127,9 @@ public class Client extends Thread {
                 break;
             case ProtocolInfo.INFORMATION_PACKET:
                 InformationPacket mess = (InformationPacket) packet;
+                if(server.getInfoClients().containsKey(mess.serverId)) {
+                    System.out.println(server.getInfoClients().get(mess.serverId).getName() + " - " + mess.message);
+                }
                 for(Client client : server.getClients()){
                     client.dataPacket(mess);
                 }

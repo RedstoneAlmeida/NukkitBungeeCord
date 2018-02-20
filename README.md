@@ -1,7 +1,8 @@
 # NukkitBungeeCord
 Nukkit BungeeCord ( style Synapse &amp; BungeeCord PC )
+Based in BungeeCord PC & SynapseAPI
 
-#### Based in BungeeCord PC & SynapseAPI
+#### Plugin: - [NukkitCord Plugin](https://github.com/RedstoneAlmeida/NukkitCord-plugin)
 
 #### Use SocketTCP system to transfer Packets!
 

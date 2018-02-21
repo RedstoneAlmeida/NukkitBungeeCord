@@ -1,6 +1,8 @@
 package bunge;
 
+import bunge.cord.Client;
 import bunge.cord.Server;
+import bunge.cord.network.protocol.DisconnectPacket;
 
 public class BungeePE {
 

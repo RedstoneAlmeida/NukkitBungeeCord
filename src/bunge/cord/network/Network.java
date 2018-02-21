@@ -60,6 +60,7 @@ public class Network {
         this.registerPacket(ProtocolInfo.HANDLER_PACKET, HandlerPacket.class);
         this.registerPacket(ProtocolInfo.DISCONNECTION_PACKET, DisconnectPacket.class);
         this.registerPacket(ProtocolInfo.INFORMATION_PACKET, InformationPacket.class);
+        this.registerPacket(ProtocolInfo.SERVER_INFORMATION_PACKET, ServerInformationPacket.class);
     }
 
 }

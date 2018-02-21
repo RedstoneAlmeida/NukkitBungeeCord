@@ -104,17 +104,22 @@ public class Client extends Thread {
                 }
                 if(server.getInfoClients().containsKey(serverId)){
                     System.out.println("ServerID já está em uso, Servidor já registrado!");
+                    DisconnectPacket pk = new DisconnectPacket();
+                    pk.serverId = serverId;
+                    dataPacket(pk);
                     return;
                 }
                 server.getInfoClients().put(serverId, info = new StorageClientInformation(serverName, slots));
                 System.out.println("Registrado: " + serverId);
                 System.out.println(String.format("Nome: %s, Slots: %s", serverName, slots));
+                server.setMaxPlayers(server.getMaxPlayers() + slots);
                 break;
             case ProtocolInfo.HANDLER_PACKET:
                 break;
             case ProtocolInfo.DISCONNECTION_PACKET:
                 DisconnectPacket diss = (DisconnectPacket) packet;
                 System.out.println("Desconectado o cliente: " + diss.serverId);
+                server.setMaxPlayers(server.getMaxPlayers() - server.getInfoClients().get(diss.serverId).getSlots());
                 setConnected(false);
                 if(server.getInfoClients().containsKey(diss.serverId)){
                     server.getInfoClients().remove(diss.serverId);
@@ -133,6 +138,10 @@ public class Client extends Thread {
                 for(Client client : server.getClients()){
                     client.dataPacket(mess);
                 }
+                break;
+            case ProtocolInfo.SERVER_INFORMATION_PACKET:
+                ServerInformationPacket infoServer = (ServerInformationPacket) packet;
+                server.setOnlinePlayers(server.getOnlinePlayers() + infoServer.onlinePlayers);
                 break;
         }
     }

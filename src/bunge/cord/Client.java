@@ -141,7 +141,9 @@ public class Client extends Thread {
                 break;
             case ProtocolInfo.SERVER_INFORMATION_PACKET:
                 ServerInformationPacket infoServer = (ServerInformationPacket) packet;
-                server.setOnlinePlayers(server.getOnlinePlayers() + infoServer.onlinePlayers);
+                if(server.getInfoClients().containsKey(infoServer.serverId)){
+                    server.getInfoClients().get(infoServer.serverId).setPlayerCount(infoServer.onlinePlayers);
+                }
                 break;
         }
     }

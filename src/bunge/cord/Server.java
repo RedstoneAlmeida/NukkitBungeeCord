@@ -1,10 +1,16 @@
 package bunge.cord;
 
+import bunge.cord.command.Command;
+import bunge.cord.command.defaults.StatusCommand;
+import bunge.cord.command.defaults.StopCommand;
 import bunge.cord.network.Network;
 import bunge.cord.network.protocol.DisconnectPacket;
 import bunge.cord.utils.StorageClientInformation;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -28,6 +34,8 @@ public class Server {
     public int port;
     public String password;
 
+    private Thread currentThread;
+
     public Server(String[] args){
         this.network = new Network(this);
         this.args = args;
@@ -35,9 +43,8 @@ public class Server {
 
     public void start(){
         try {
-            Thread thread = Thread.currentThread();
-            thread.setName("Server Thread");
-            tick();
+            currentThread = Thread.currentThread();
+            currentThread.setName("Server Thread");
             //reset();
             if(args.length >= 2){
                 port = Integer.parseInt(args[0]);
@@ -46,15 +53,57 @@ public class Server {
                 port = 1111;
                 password = "testpass";
             }
-            ServerSocket serv = new ServerSocket(1111);
+            ServerSocket serv = new ServerSocket();
+            serv.bind(new InetSocketAddress("0.0.0.0", port));
+            tick();
+            reset();
             System.out.println("Iniciando o Servidor...");
             System.out.println(String.format("Port: %s Pass: %s", port, password));
+            new Thread(() -> {
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                    // Le entao a palagra SAIR nao seja digitada
+                    String linha = "";
+                    Command command = null;
+                    while (!linha.equals("SAIR")) {
+                        linha = reader.readLine();
+                        switch (linha.toLowerCase().replace("/", "")){
+                            case "stop":
+                                command = new StopCommand();
+                                break;
+                            case "status":
+                                command = new StatusCommand();
+                                break;
+                        }
+                        if(command != null) {
+                            command.execute(this);
+                        }
+                    }
+                }
+                catch (IOException e) {
+                    System.out.println("Erro: "+ e);
+                }
+            }).start();
             while (true){
                 Socket clie = serv.accept();
                 Client client = new Client(this, clie);
                 client.start();
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void shutdown(){
+        DisconnectPacket pk = new DisconnectPacket();
+        pk.serverId = 1039819381L;
+        for(Client client : clients){
+            client.dataPacket(pk);
+        }
+        try {
+            Thread.sleep(1800);
+            System.exit(0);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -82,16 +131,22 @@ public class Server {
         new Thread(() -> {
             while (true){
                 try {
-                    Thread.sleep(6000);
-                    System.out.println(String.format("ServerTick: %s", tick));
-                    System.out.println(String.format("Online: %s", onlinePlayers));
-                    System.out.println(String.format("Max: %s", maxPlayers));
-                    setOnlinePlayers(0);
+                    Thread.sleep(500);
+                    int count = 0;
+                    for(long serverId : getInfoClients().keySet()){
+                        StorageClientInformation info = getInfoClients().get(serverId);
+                        count += info.getCountPlayers();
+                    }
+                    setOnlinePlayers(count);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    public boolean isPrimaryThread(){
+        return (Thread.currentThread() == currentThread);
     }
 
     public Network getNetwork() {
